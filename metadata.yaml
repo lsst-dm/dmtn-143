@@ -37,14 +37,15 @@ authors:
 copyright: "2020, The Board of Trustees of the Leland Stanford Junior University, through SLAC National Accelerator Laboratory"
 
 # Description. A short, 1-2 sentence statemement used by document indices.
-description: "Now that crosstalk removal has been descoped from the Camera DAQ, there is only one version of the pixel image that can be and needs to be retrieved, rather than two. This Tech Note describes ways to simplify the design of the image capture and ingest system that are now feasible."
+description: "Ways to simplify the design of the image capture and ingest system feasible after descope of Camera DAQ crosstalk removal."
 
 # Abstract, if available
-# abstract: >
-#           Write your paragraph
-#           here with multiple lines.
-#
-#           You can have multiple paragraphs too.
+abstract: >
+          Now that crosstalk removal has been descoped from the Camera DAQ,
+          there is only one version of the pixel image that can be and needs
+          to be retrieved, rather than two. This Tech Note describes ways to
+          simplify the design of the image capture and ingest system that are
+          now feasible.
 
 # URL where this document is published by Read the Docs. e.g. http://sqr-001.lsst.codes
 url: "https://dmtn-143.lsst.io"
