@@ -143,7 +143,7 @@ The first steps in a transition to this design would be:
 * Implement the post-capture command facility.
   At this point, minimal functionality would be available for LATISS and test stands, including ComCam.
 
-While Tony Johnson (the prime CCS author) is quite busy with LATISS commissioning, ComCam testing, and LSSTCam integration and testing, at least Steve Pietrowicz from NCSA could help with the Java-based aspects of this transition.
+While Tony Johnson (the CCS manager) is quite busy with LATISS commissioning, ComCam testing, and LSSTCam integration and testing, at least Steve Pietrowicz from NCSA could help with the Java-based aspects of this transition.
 
 
 Further Additions
