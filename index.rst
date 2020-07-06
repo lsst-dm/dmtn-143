@@ -4,6 +4,13 @@
 
 .. sectnum::
 
+.. note::
+
+    The proposal in this document has been accepted by the Rubin Observatory Change Control Board and the Project Manager as `LCR-2233`_.
+    The design outlined here will be implemented for LSSTCam, and, if time and resources allow, retrofitted to ComCam.
+
+.. _LCR-2233: https://project.lsst.org/groups/ccb/node/3995
+
 Current Status
 ==============
 
