@@ -93,7 +93,7 @@ Post-Writing Commands
 
 To enable transfer of the pixel images to the systems that need them, the CCS image writing software will be enhanced to accept commands or scripts that can be executed once an image and its metadata has been written successfully.
 These commands will be configured into the CCS software by specifying a destination name, the command, an opaque parameter string, and a priority order.
-This configuration information will be published in SAL messasges as part of the CCS configuration.
+This configuration information will be published in SAL messages as part of the CCS configuration.
 
 After an image is written, all commands will be executed on that image, in priority order.
 Commands should be executed in parallel, but it should be possible to limit the number of commands being executed at the same time at the cost of increased latency.
@@ -126,6 +126,11 @@ When the CCS restarts, any files discovered that did not have all commands execu
 
 This facility can easily be used to copy files over networks to the Prompt Processing Distributors at the LDF and the OODS (whether at the Summit or Base).
 If messages are needed to trigger the OODS or other components, the sending commands can be appended to the copy commands in a script.
+
+This facility can also be used to transmit image files directly over the Long Haul Network to a permanent filesystem or object store at the US Data Facility (USDF).
+This transmission is expected to be more reliable than using separate Distributor nodes, and it should be sufficiently low-latency since the Prompt Processing workers have to retrieve the pixel data over the network in either case.
+It also obviates the need for separate Prompt Processing and Archiving image transfers.
+It still may be necessary to have a separate process running to maintain persistent connections with the USDF; the command mechanism would trigger that process rather than performing the transfer itself.
 
 
 Catch-Up Archiver
