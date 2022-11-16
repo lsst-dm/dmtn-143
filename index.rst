@@ -93,7 +93,7 @@ Post-Writing Commands
 
 To enable transfer of the pixel images to the systems that need them, the CCS image writing software will be enhanced to accept commands or scripts that can be executed once an image and its metadata has been written successfully.
 These commands will be configured into the CCS software by specifying a destination name, the command, an opaque parameter string, and a priority order.
-This configuration information will be published in SAL messasges as part of the CCS configuration.
+This configuration information will be published in SAL messages as part of the CCS configuration.
 
 After an image is written, all commands will be executed on that image, in priority order.
 Commands should be executed in parallel, but it should be possible to limit the number of commands being executed at the same time at the cost of increased latency.
@@ -126,6 +126,11 @@ When the CCS restarts, any files discovered that did not have all commands execu
 
 This facility can easily be used to copy files over networks to the Prompt Processing Distributors at the LDF and the OODS (whether at the Summit or Base).
 If messages are needed to trigger the OODS or other components, the sending commands can be appended to the copy commands in a script.
+
+This facility can also be used to transmit image files directly over the Long Haul Network to a permanent filesystem or object store at the US Data Facility (USDF).
+This transmission is expected to be more reliable than using separate Distributor nodes, and it should be sufficiently low-latency since the Prompt Processing workers have to retrieve the pixel data over the network in either case.
+It also obviates the need for separate Prompt Processing and Archiving image transfers.
+It still may be necessary to have a separate process running to maintain persistent connections with the USDF; the command mechanism would trigger that process rather than performing the transfer itself.
 
 
 Catch-Up Archiver
@@ -176,6 +181,49 @@ This has potential difficulties:
 * Porting the current SAL-heavy Python code to Java may not be easy.
 
 Nevertheless, this should be considered down the road, again because having the CCS perform this function can help ensure that it happens for every image and moves the metadata capture point close to the authoritative source for most of it.
+
+
+2022 Implementation
+===================
+
+In September of 2022, this mechanism was implemented as follows:
+
+The CCS extracts image pixels from the Camera DAQ system, attaches FITS headers provided by the Header Service, and writes these locally as a FITS file.
+It writes header information for the image into a JSON "sidecar" file compatible with `RawIngestTask.extractMetadata() <https://pipelines.lsst.io/v/daily/py-api/lsst.obs.base.RawIngestTask.html#lsst.obs.base.RawIngestTask.extractMetadata>`__, and it executes a command to compress the FITS image using tile-based Rice compression.
+Although these steps are not strictly required, they do speed up the process considerably.
+
+The CCS executes separate commands to copy the JSON sidecar file and the compressed FITS image file to the embargo object store at the USDF.
+These commands use HTTPS PUT to perform the transfer.
+The path of the resulting objects is specified as ``{instrument}/{day_obs}/{obs_id}/{obs_id}_{raft}_{sensor}.fits``.
+The CCS image writers are configured with the necessary credentials to be able to write to the embargo object store.
+
+The embargo object store is configured to emit notification messages via a webhook when new objects are created.
+The webhook performs an HTTP POST on a given URL.
+
+A queueing service is deployed in USDF Kubernetes that receives the POST requests in a Flask application running within the gunicorn WSGI server.
+The queueing service considers only notifications ending in ``.fits``.
+It determines the object store bucket in which the object was created and posts the object pathname to a Redis queue named after that bucket.
+The ability to handle multiple buckets allows the Summit and Test Stands to be handled by the same system.
+
+Ingest services deployed in USDF Kubernetes, one per bucket, watch the Redis bucket queues.
+These ingest services run in containers based on a particular release of (much of) the LSST Science Pipelines, including the ``obs_lsst`` package.
+When new paths are placed in the bucket queues, the workers remove one at a time and add them to a worker-specific queue, also in Redis.
+All paths on the worker queue are read and passed, one at a time, to the ``run`` method of a pre-instantiated ``RawIngestTask``.
+The success and failure callbacks of that task are used to determine whether to remove a path from the worker queue, with removal occurring on success or metadata translation failure, while ingest failures are left in the queue for retrying.
+All successful ingests are then passed to the ``run`` method of a pre-instantiated ``DefineVisitsTask``.
+
+The bucket queue implementation allows for multiple queueing servers (and multiple request handlers within any single server) to be active at the same time, as adding to the bucket queue is an atomic operation.
+The worker queue implementation similarly allows for multiple ingest workers per bucket, which will be necessary to scale to large numbers of images.
+Both of these features enable these services to work smoothly as Kubernetes Deployments.
+Note that while the queueing service only needs one active request handler at a time, during restarts and upgrades, multiple may be running at once.
+
+A cleanup service deployed in USDF Kubernetes looks for worker queues that contain paths but which have been idle for a configurable time period.
+If any are found, it presumes that those workers are dead and transfers the paths from those worker queues back to the appropriate bucket queue.
+It presumes that Kubernetes will handle any required worker restarts.
+
+The queueing and ingest services also write a number of other items to Redis to allow tracking of the number of image files handled per night, success and failure rates, latencies, and failure messages.
+These are expected to be used in a future monitoring system.
+
 
 .. .. rubric:: References
 

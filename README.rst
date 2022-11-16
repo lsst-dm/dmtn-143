@@ -1,7 +1,7 @@
 .. image:: https://img.shields.io/badge/dmtn--143-lsst.io-brightgreen.svg
    :target: https://dmtn-143.lsst.io
-.. image:: https://travis-ci.com/lsst-dm/dmtn-143.svg
-   :target: https://travis-ci.com/lsst-dm/dmtn-143
+.. image:: https://github.com/lsst-dm/dmtn-143/workflows/CI/badge.svg
+   :target: https://github.com/lsst-dm/dmtn-143/actions/
 ..
   Uncomment this section and modify the DOI strings to include a Zenodo DOI badge in the README
   .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.#####.svg
@@ -21,7 +21,7 @@ Now that crosstalk removal has been descoped from the Camera DAQ, there is only 
 - Publication URL: https://dmtn-143.lsst.io
 - Alternative editions: https://dmtn-143.lsst.io/v
 - GitHub repository: https://github.com/lsst-dm/dmtn-143
-- Build system: https://travis-ci.com/lsst-dm/dmtn-143
+- Build system: https://github.com/lsst-dm/dmtn-143/actions/
 
 
 Build this technical note
@@ -52,7 +52,7 @@ The `DM reStructuredText Style Guide`_ is a good resource for how we write reStr
 Remember that images and other types of assets should be stored in the ``_static/`` directory of this repository.
 See ``_static/README.rst`` for more information.
 
-The published technote at https://dmtn-143.lsst.io will be automatically rebuilt whenever you push your changes to the ``master`` branch on `GitHub <https://github.com/lsst-dm/dmtn-143>`_.
+The published technote at https://dmtn-143.lsst.io will be automatically rebuilt whenever you push your changes to the ``main`` branch on `GitHub <https://github.com/lsst-dm/dmtn-143>`_.
 
 Updating metadata
 =================
